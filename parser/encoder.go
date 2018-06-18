@@ -17,10 +17,10 @@ type FrameWriter interface {
 
 type Encoder struct {
 	w FrameWriter
-	mtx sync.Mutex
+	mtx *sync.Mutex
 }
 
-func NewEncoder(w FrameWriter, mtx sync.Mutex) *Encoder {
+func NewEncoder(w FrameWriter, mtx *sync.Mutex) *Encoder {
 	return &Encoder{
 		w: w,
 		mtx: mtx,

@@ -59,7 +59,7 @@ type conn struct {
 }
 
 func newConn(c engineio.Conn, handlers map[string]*namespaceHandler) (*conn, error) {
-	mtx := sync.Mutex{}
+	mtx := &sync.Mutex{}
 	ret := &conn{
 		Conn:       c,
 		encoder:    parser.NewEncoder(c, mtx),
