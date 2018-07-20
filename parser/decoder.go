@@ -88,8 +88,6 @@ func (d *Decoder) DecodeHeader(header *Header, event *string) error {
 }
 
 func (d *Decoder) DecodeArgs(types []reflect.Type) ([]reflect.Value, error) {
-	d.mtx.Lock()
-	defer d.mtx.Unlock()
 	r := d.packetReader.(io.Reader)
 	if d.isEvent {
 		r = io.MultiReader(strings.NewReader("["), r)
