@@ -18,10 +18,6 @@ type FrameReader interface {
 	NextReader() (engineio.FrameType, io.ReadCloser, error)
 }
 
-type FrameMtxReader interface {
-	NextMtxReader(mts *sync.Mutex) (engineio.FrameType, io.ReadCloser, error)
-}
-
 type Decoder struct {
 	r FrameReader
 
@@ -29,19 +25,15 @@ type Decoder struct {
 	packetReader byteReader
 	bufferCount  uint64
 	isEvent      bool
-	mtx *sync.Mutex
 }
 
-func NewDecoder(r FrameReader, mtx *sync.Mutex) *Decoder {
+func NewDecoder(r FrameReader) *Decoder {
 	return &Decoder{
 		r: r,
-		mtx: mtx,
 	}
 }
 
 func (d *Decoder) Close() error {
-	d.mtx.Lock()
-	defer d.mtx.Unlock()
 	if d.lastFrame != nil {
 		d.lastFrame.Close()
 		d.lastFrame = nil
@@ -56,8 +48,6 @@ type byteReader interface {
 }
 
 func (d *Decoder) DiscardLast() (err error) {
-	d.mtx.Lock()
-	defer d.mtx.Unlock()
 	if d.lastFrame != nil {
 		err = d.lastFrame.Close()
 		d.lastFrame = nil
@@ -66,19 +56,7 @@ func (d *Decoder) DiscardLast() (err error) {
 }
 
 func (d *Decoder) DecodeHeader(header *Header, event *string) error {
-	var ft engineio.FrameType
-	var r io.ReadCloser
-	var err error
-
-	if mtxReader, ok := d.r.(FrameMtxReader); ok {
-		ft, r, err = mtxReader.NextMtxReader(d.mtx)
-	} else {
-		ft, r, err = d.r.NextReader()
-	}
-
-	d.mtx.Lock()
-	defer d.mtx.Unlock()
-
+	ft, r, err := d.r.NextReader()
 	if err != nil {
 		return err
 	}
