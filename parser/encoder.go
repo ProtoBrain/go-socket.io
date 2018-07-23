@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"reflect"
-	"sync"
 
 	"github.com/tensor146/go-engine.io"
 )

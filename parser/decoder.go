@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"reflect"
 	"strings"
-	"sync"
 
 	"github.com/tensor146/go-engine.io"
 )
